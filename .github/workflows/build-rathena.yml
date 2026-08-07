@@ -14,10 +14,10 @@ jobs:
           repository: rathena/rathena
           ref: master
 
-      - name: Install Dependencies
+            - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git make gcc g++ libmariadb-dev libpcre3-dev zlib1g-dev
+          sudo apt-get install -y git make gcc g++ default-libmysqlclient-dev zlib1g-dev libpcre3-dev
 
       - name: Configure rAthena (Packetver 2022-03-30)
         run: ./configure --enable-packetver=20220330
