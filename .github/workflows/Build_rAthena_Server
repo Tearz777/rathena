@@ -1,0 +1,40 @@
+name: Build rAthena Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: rathena/rathena
+          ref: master
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git make gcc g++ libmariadb-dev libpcre3-dev zlib1g-dev
+
+      - name: Configure rAthena (Packetver 2022-03-30)
+        run: ./configure --enable-packetver=20220330
+
+      - name: Compile Server
+        run: make clean && make server
+
+      - name: Package Server Files
+        run: |
+          mkdir rathena-build
+          # Mengamankan binary server dan script start
+          cp login-server char-server map-server web-server athena-start rathena-build/
+          # Mengamankan folder data wajib
+          cp -r conf db npc sql-files rathena-build/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rathena-server-linux-x64
+          path: rathena-build/
