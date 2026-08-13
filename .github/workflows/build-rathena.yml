@@ -8,33 +8,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout rAthena
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           repository: rathena/rathena
-          ref: master
+          ref: 2fe6ab3dc4d830b11d93fb44c3b48436571890bd
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git make gcc g++ default-libmysqlclient-dev zlib1g-dev libpcre3-dev
+          sudo apt-get install -y \
+            make \
+            gcc \
+            g++ \
+            default-libmysqlclient-dev \
+            zlib1g-dev \
+            libpcre3-dev
 
-      - name: Configure rAthena (Packetver 2022-03-30)
-        run: ./configure --enable-packetver=20220330
+      - name: Configure rAthena
+        run: |
+          ./configure \
+            --enable-packetver=20211103
 
       - name: Compile Server
-        run: make clean && make server
+        run: |
+          make clean
+          make server
 
       - name: Package Server Files
         run: |
           mkdir rathena-build
-          # Mengamankan binary server dan script start
-          cp login-server char-server map-server web-server athena-start rathena-build/
-          # Mengamankan folder data wajib
+          cp login-server char-server map-server athena-start rathena-build/
           cp -r conf db npc sql-files rathena-build/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
         with:
-          name: rathena-server-linux-x64
+          name: rathena-vastil-20211103-linux-x64
           path: rathena-build/
