@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout rAthena
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           repository: rathena/rathena
           ref: 2fe6ab3dc4d830b11d93fb44c3b48436571890bd
@@ -22,7 +22,6 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-
           sudo apt-get install -y \
             build-essential \
             git \
@@ -40,17 +39,16 @@ jobs:
           gcc --version
           g++ --version
 
-          echo "=== MariaDB / MySQL compatibility ==="
+          echo "=== MySQL/MariaDB compatibility ==="
           which mysql_config
           mysql_config --version
 
-          echo "=== MySQL client library ==="
+          echo "=== Client library ==="
           ls -l /usr/lib/x86_64-linux-gnu/libmysqlclient.so
 
       - name: Configure rAthena
         run: |
           ./configure \
-            --enable-prere=no \
             --enable-packetver=20211103
 
       - name: Compile Server
@@ -60,7 +58,7 @@ jobs:
 
       - name: Verify Binaries
         run: |
-          echo "=== Binary files ==="
+          echo "=== Files ==="
           ls -lh login-server char-server map-server
 
           echo "=== Architecture ==="
@@ -68,58 +66,53 @@ jobs:
           file char-server
           file map-server
 
-          echo "=== Missing libraries ==="
+          echo "=== Runtime dependencies ==="
+          ldd login-server
+          ldd char-server
+          ldd map-server
 
           if ldd login-server | grep -q "not found"; then
-            ldd login-server
+            echo "Missing library in login-server"
             exit 1
           fi
 
           if ldd char-server | grep -q "not found"; then
-            ldd char-server
+            echo "Missing library in char-server"
             exit 1
           fi
 
           if ldd map-server | grep -q "not found"; then
-            ldd map-server
+            echo "Missing library in map-server"
             exit 1
           fi
 
-          echo "All runtime libraries found."
-
-      - name: Package Server Files
+      - name: Package Server
         run: |
           mkdir -p rathena-build
 
-          cp \
-            login-server \
-            char-server \
-            map-server \
-            athena-start \
-            rathena-build/
+          cp login-server rathena-build/
+          cp char-server rathena-build/
+          cp map-server rathena-build/
+          cp athena-start rathena-build/
 
-          cp -r \
-            conf \
-            db \
-            npc \
-            sql-files \
-            rathena-build/
+          cp -r conf rathena-build/
+          cp -r db rathena-build/
+          cp -r npc rathena-build/
+          cp -r sql-files rathena-build/
 
-          cat > rathena-build/VASTIL_BUILD_INFO.txt <<EOF
-          Project: Vastil rAthena Development Server
+          cat > rathena-build/VASTIL_BUILD_INFO.txt <<'EOF'
+          Vastil rAthena Development Server
+
           Architecture: x86_64 Linux
           PACKETVER: 20211103
           rAthena Commit: 2fe6ab3dc4d830b11d93fb44c3b48436571890bd
-          Runner: Ubuntu 24.04
+          Build Runner: Ubuntu 24.04
           EOF
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
         with:
           name: rathena-vastil-20211103-linux-x64
-          path: rathena-build/
-          if-no-files-found: error
-          retention-days: 30
           path: rathena-build/
           if-no-files-found: error
           retention-days: 30
