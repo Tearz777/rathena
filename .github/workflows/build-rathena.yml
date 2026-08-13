@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout rAthena
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: rathena/rathena
           ref: 2fe6ab3dc4d830b11d93fb44c3b48436571890bd
