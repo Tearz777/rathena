@@ -66,7 +66,7 @@ jobs:
           name: rathena-windows
           path: artifact/*.exe
           if-no-files-found: error
-          retention-days: 7name: Build rAthena Windows
+          retention-days: name: Build rAthena Windows
 
 on:
   workflow_dispatch:
